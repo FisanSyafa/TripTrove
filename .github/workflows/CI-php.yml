@@ -1,0 +1,55 @@
+name: PHP Native CI TripTrove
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  php-tests:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: triptrove_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, pdo, mysql, gd  # Ekstensi minimal untuk PHP native
+        tools: composer:v2
+
+    - name: Install Dependencies
+      run: |
+        composer install --prefer-dist --no-progress
+        # Copy file konfigurasi jika diperlukan
+        cp config.sample.php config.php
+
+    - name: Setup Database
+      run: |
+        mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS triptrove_test"
+        # Import SQL dump jika diperlukan
+        # mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
+
+    - name: Run Tests
+      run: |
+        # Tes koneksi database
+        php -r "new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); echo 'DB Connected!';"
+        
+        # Jalankan tes PHPUnit jika ada
+        if [ -f "vendor/bin/phpunit" ]; then
+          vendor/bin/phpunit
+        fi
+        
+        # Atau tes file spesifik
+        php user_login_test.php
