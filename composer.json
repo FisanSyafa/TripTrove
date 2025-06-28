@@ -1,0 +1,11 @@
+{
+    "name": "fisansyafa/triptrove",
+    "description": "TripTrove Travel Booking System",
+    "type": "project",
+    "require": {
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    }
+}
