@@ -1,4 +1,4 @@
-name: Laravel CI TripTrove
+name: PHP Native CI TripTrove
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  laravel-tests:
+  php-tests:
     runs-on: ubuntu-latest
     services:
       mysql:
@@ -26,27 +26,30 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, ctype, fileinfo, openssl, pdo, mysql, pgsql, sqlite, gd
+        extensions: mbstring, pdo, mysql, gd  # Ekstensi minimal untuk PHP native
         tools: composer:v2
 
     - name: Install Dependencies
       run: |
         composer install --prefer-dist --no-progress
-        cp .env.example .env
-        php artisan key:generate
+        # Copy file konfigurasi jika diperlukan
+        cp config.sample.php config.php
 
-    - name: Setup Environment
+    - name: Setup Database
       run: |
-        echo "DB_CONNECTION=mysql" >> .env
-        echo "DB_HOST=127.0.0.1" >> .env
-        echo "DB_PORT=3306" >> .env
-        echo "DB_DATABASE=triptrove_test" >> .env
-        echo "DB_USERNAME=root" >> .env
-        echo "DB_PASSWORD=root" >> .env
-        echo "APP_ENV=testing" >> .env
+        mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS triptrove_test"
+        # Import SQL dump jika diperlukan
+        # mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
 
-    - name: Run Migrations
-      run: php artisan migrate:fresh --env=testing --force
-
-    - name: Execute Tests
-      run: php artisan test
+    - name: Run Tests
+      run: |
+        # Tes koneksi database
+        php -r "new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); echo 'DB Connected!';"
+        
+        # Jalankan tes PHPUnit jika ada
+        if [ -f "vendor/bin/phpunit" ]; then
+          vendor/bin/phpunit
+        fi
+        
+        # Atau tes file spesifik
+        php user_login_test.php
