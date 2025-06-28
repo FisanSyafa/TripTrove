@@ -31,32 +31,43 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        # Hanya jalankan composer install jika composer.json ada
         if [ -f "composer.json" ]; then
           composer install --prefer-dist --no-progress
-        else
-          echo "composer.json not found, skipping dependency installation"
         fi
 
     - name: Setup Database
       run: |
         mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS triptrove_test"
-        # Jika ada file SQL untuk setup database
         if [ -f "database.sql" ]; then
           mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
         fi
 
-    - name: Run Tests
+    - name: Run Basic Tests
       run: |
         # Tes koneksi database
-        php -r "new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); echo 'DB Connected!';"
+        php -r "
+          try {
+            new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); 
+            echo '✅ DB Connected successfully';
+          } catch (PDOException \$e) {
+            echo '❌ DB Connection failed: ' . \$e->getMessage();
+            exit(1);
+          }
+        "
         
-        # Jalankan tes PHPUnit jika ada
-        if [ -f "vendor/bin/phpunit" ]; then
+        # Jalankan PHPUnit jika ada test case
+        if [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
           vendor/bin/phpunit
+        elif [ -f "tests/" ]; then
+          vendor/bin/phpunit tests/
+        else
+          echo "ℹ️ No PHPUnit tests found"
         fi
         
-        # Atau tes file spesifik jika ada
+        # Jalankan test file spesifik jika ada
         if [ -f "user_login_test.php" ]; then
+          echo "Running user_login_test.php"
           php user_login_test.php
+        else
+          echo "ℹ️ user_login_test.php not found"
         fi
