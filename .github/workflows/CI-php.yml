@@ -1,4 +1,4 @@
-name: PHP Composer
+name: Laravel CI TripTrove
 
 on:
   push:
@@ -6,34 +6,47 @@ on:
   pull_request:
     branches: [ "master" ]
 
-permissions:
-  contents: read
-
 jobs:
-  build:
-
+  laravel-tests:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: triptrove_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate --strict
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+        php-version: '8.2'
+        extensions: mbstring, ctype, fileinfo, openssl, pdo, mysql, pgsql, sqlite, gd
+        tools: composer:v2
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+    - name: Install Dependencies
+      run: |
+        composer install --prefer-dist --no-progress
+        cp .env.example .env
+        php artisan key:generate
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
+    - name: Setup Environment
+      run: |
+        echo "DB_CONNECTION=mysql" >> .env
+        echo "DB_HOST=127.0.0.1" >> .env
+        echo "DB_PORT=3306" >> .env
+        echo "DB_DATABASE=triptrove_test" >> .env
+        echo "DB_USERNAME=root" >> .env
+        echo "DB_PASSWORD=root" >> .env
+        echo "APP_ENV=testing" >> .env
 
-    # - name: Run test suite
-    #   run: composer run-script test
+    - name: Run Migrations
+      run: php artisan migrate:fresh --env=testing --force
+
+    - name: Execute Tests
+      run: php artisan test
