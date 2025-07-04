@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt) {
             // Bind parameter (s = string, i = integer)
-            mysqli_stmt_bind_param($stmt, "sssisis", $username, $nama_paket_trip, $region_id, $image, $comment_star, $comment, $comment_date);
+            mysqli_stmt_bind_param($stmt, "ssisiss", $username, $nama_paket_trip, $region_id, $image, $comment_star, $comment, $comment_date);
             
             // Jalankan statement
             if (mysqli_stmt_execute($stmt)) {
