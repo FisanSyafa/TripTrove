@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mysql -u trip_fisan -pDatabasefisan trip_triptrove < /var/www/html/db/database.sql
+            mysql -u trip_fisan -pDatabasefisan trip_triptrove < /var/www/html/db/triptrove.sql
 
       - name: Set permissions & restart Apache
         uses: appleboy/ssh-action@v0.1.10
