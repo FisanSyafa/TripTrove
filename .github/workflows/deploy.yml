@@ -1,4 +1,4 @@
-name: Deploy to FTP
+name: Deploy PHP Project to VPS
 
 on:
   push:
@@ -6,16 +6,38 @@ on:
       - master
 
 jobs:
-  ftp-deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Upload files to VPS
+        uses: appleboy/scp-action@v0.1.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_REMOTE_DIR }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/var/www/html"
+
+      - name: Import MySQL Database
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mysql -u trip_fisan -pDatabasefisan trip_triptrove < /var/www/html/db/database.sql
+
+      - name: Set permissions & restart Apache
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            chown -R www-data:www-data /var/www/html
+            chmod -R 755 /var/www/html
+            systemctl restart apache2 || systemctl restart nginx
