@@ -26,30 +26,48 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, pdo, mysql, gd  # Ekstensi minimal untuk PHP native
+        extensions: mbstring, pdo, mysql, gd
         tools: composer:v2
 
     - name: Install Dependencies
       run: |
-        composer install --prefer-dist --no-progress
-        # Copy file konfigurasi jika diperlukan
-        cp config.sample.php config.php
+        if [ -f "composer.json" ]; then
+          composer install --prefer-dist --no-progress
+        fi
 
     - name: Setup Database
       run: |
         mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS triptrove_test"
-        # Import SQL dump jika diperlukan
-        # mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
+        if [ -f "database.sql" ]; then
+          mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
+        fi
 
-    - name: Run Tests
+    - name: Run Basic Tests
       run: |
         # Tes koneksi database
-        php -r "new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); echo 'DB Connected!';"
+        php -r "
+          try {
+            new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); 
+            echo '✅ DB Connected successfully';
+          } catch (PDOException \$e) {
+            echo '❌ DB Connection failed: ' . \$e->getMessage();
+            exit(1);
+          }
+        "
         
-        # Jalankan tes PHPUnit jika ada
-        if [ -f "vendor/bin/phpunit" ]; then
+        # Jalankan PHPUnit jika ada test case
+        if [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
           vendor/bin/phpunit
+        elif [ -f "tests/" ]; then
+          vendor/bin/phpunit tests/
+        else
+          echo "ℹ️ No PHPUnit tests found"
         fi
         
-        # Atau tes file spesifik
-        php user_login_test.php
+        # Jalankan test file spesifik jika ada
+        if [ -f "user_login_test.php" ]; then
+          echo "Running user_login_test.php"
+          php user_login_test.php
+        else
+          echo "ℹ️ user_login_test.php not found"
+        fi

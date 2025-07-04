@@ -249,7 +249,6 @@ $rate = $rates[$currency] ?? 1;
 
                             <!-- Harga dengan konversi mata uang -->
                             <?php
-                            // Pastikan fungsi hanya dideklarasikan sekali
                             if (!function_exists('roundToNearestFiveCents')) {
                                 function roundToNearestFiveCents($amount) {
                                     return round($amount * 20) / 20; // Membulatkan ke 0.05
