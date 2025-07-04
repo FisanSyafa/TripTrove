@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "Alamat email tidak valid.";
     } else {
         // Validasi reCAPTCHA di sisi server
-        $recaptchaSecretKey = "6LfoBvspAAAAAKsAwow2TMgazUmEvhl_Ro6LCqnz"; 
+        $recaptchaSecretKey = "6LebrHcrAAAAAAqppaxOphuGX7YkkV_3gu_ZfG1r"; 
         $recaptchaResponse = $_POST['g-recaptcha-response'];
 
         // Membuat request untuk memverifikasi reCAPTCHA
