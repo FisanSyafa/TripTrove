@@ -35,11 +35,15 @@ if ($result_total_revenue && mysqli_num_rows($result_total_revenue) > 0) {
 }
 
 // Query untuk menghitung pendapatan per bulan
-$query_monthly_revenue = "SELECT MONTHNAME(b.created_date) AS month, SUM(b.total_price) AS total_revenue 
-                          FROM bookings b
-                          JOIN payment p ON b.booking_id = p.booking_id
-                          WHERE p.status = 'DITERIMA'
-                          GROUP BY MONTH(b.created_date)";
+$query_monthly_revenue = "SELECT 
+                          DATE_FORMAT(b.created_date, '%Y-%m') AS month,
+                          MONTHNAME(b.created_date) AS month_name,
+                          SUM(b.total_price) AS total_revenue
+                            FROM bookings b
+                            JOIN payment p ON b.booking_id = p.booking_id
+                            WHERE p.status = 'DITERIMA'
+                            GROUP BY DATE_FORMAT(b.created_date, '%Y-%m'), MONTHNAME(b.created_date)
+                            ORDER BY DATE_FORMAT(b.created_date, '%Y-%m')";
 $result_monthly_revenue = mysqli_query($link, $query_monthly_revenue);
 $monthly_revenues = [];
 
