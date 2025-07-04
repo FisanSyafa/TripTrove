@@ -473,7 +473,7 @@ $rate = $rates[$currency] ?? 1;
                             <textarea name="message" cols="30" rows="10" placeholder="Message.." required></textarea>
                         </div>
                         <!-- Elemen reCAPTCHA -->
-                        <div class="g-recaptcha" data-sitekey="6LfoBvspAAAAAOYcL1E-yeOQ3_gCjOk3u0W2tJzt"></div>
+                        <div class="g-recaptcha" data-sitekey="6LebrHcrAAAAAHJWDwBejh9HujA-6q2gdSGT8ker"></div>
                         <div class="button-area">
                             <button type="submit">Send Message</button>
                         </div>
