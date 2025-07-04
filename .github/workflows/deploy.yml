@@ -22,16 +22,21 @@ jobs:
           source: "."
           target: "/var/www/html"
 
-      - name: Import MySQL Database
+      - name: Import MySQL Database (only if not exists)
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mysql -u trip_fisan -pDatabasefisan -e "USE trip_triptrove" || mysql -u trip_fisan -pDatabasefisan -e "CREATE DATABASE trip_triptrove"
-            mysql -u trip_fisan -pDatabasefisan trip_triptrove < /var/www/html/db/triptrove.sql
-
+            DB_EXISTS=$(mysql -u trip_fisan -pDatabasefisan -e "SHOW DATABASES LIKE 'trip_triptrove';" | grep trip_triptrove || true)
+            if [ -z "$DB_EXISTS" ]; then
+              echo "Database trip_triptrove belum ada, mengimpor dari .sql..."
+              mysql -u trip_fisan -pDatabasefisan -e "CREATE DATABASE trip_triptrove"
+              mysql -u trip_fisan -pDatabasefisan trip_triptrove < /var/www/html/db/triptrove.sql
+            else
+              echo "Database trip_triptrove sudah ada, skip import."
+            fi
 
       - name: Set permissions & restart Apache
         uses: appleboy/ssh-action@v0.1.10
