@@ -35,13 +35,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Query tambah data comment
-        $sql = "INSERT INTO comments (username, nama_paket_trip, region_id, image, comment_star, comment, comment_date) VALUES ('$username', '$nama_paket_trip', '$region_id', '$image', '$comment_star', '$comment', '$comment_date')";
-        if (mysqli_query($link, $sql)) {
-            // Redirect kembali ke halaman deskripsi_trip.php dengan menyertakan nama_paket_trip
-            header("Location: ../deskripsi/deskripsi_trip.php?nama_paket_trip=" . urlencode($nama_paket_trip));
-            exit(); // Pastikan untuk menghentikan eksekusi setelah redirect
+        $sql = "INSERT INTO comments (username, nama_paket_trip, region_id, image, comment_star, comment, comment_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($link, $sql);
+        
+        if ($stmt) {
+            // Bind parameter (s = string, i = integer)
+            mysqli_stmt_bind_param($stmt, "sssisis", $username, $nama_paket_trip, $region_id, $image, $comment_star, $comment, $comment_date);
+            
+            // Jalankan statement
+            if (mysqli_stmt_execute($stmt)) {
+                // Sukses, redirect kembali
+                header("Location: ../deskripsi/deskripsi_trip.php?nama_paket_trip=" . urlencode($nama_paket_trip));
+                exit();
+            } else {
+                echo "Gagal mengeksekusi query: " . mysqli_stmt_error($stmt);
+            }
+        
+            mysqli_stmt_close($stmt);
         } else {
-            echo "Error: " . $sql . "<br>" . mysqli_error($link);
+            echo "Gagal mempersiapkan query: " . mysqli_error($link);
         }
     } else {
         echo "All fields are required.";
