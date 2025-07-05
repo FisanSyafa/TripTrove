@@ -228,6 +228,11 @@ $rate = $rates[$currency] ?? 1;
                 <?php
                 $sql = "SELECT * FROM paket_trip WHERE 1";
 
+                if (isset($_GET['kategori']) && $_GET['kategori'] !== '') {
+                    $kategori = mysqli_real_escape_string($conn, $_GET['kategori']);
+                    $sql .= " AND kategori = '$kategori'";
+                }
+
                 if (isset($_GET['search']) && !empty($_GET['search'])) {
                     $search = mysqli_real_escape_string($conn, $_GET['search']);
                     $sql .= " AND (destinasi LIKE '%$search%' OR nama_paket_trip LIKE '%$search%')";
