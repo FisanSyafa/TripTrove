@@ -269,10 +269,12 @@ $rate = $rates[$currency] ?? 1;
     if (!startDate || !person) {
         alert("Harap lengkapi semua data sebelum memesan.");
         event.preventDefault();
-    }
-});
-
-</script>
+        }
+        });
+        
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("start_time").setAttribute("min", today);
+    </script>
 
 </body>
 </html>
