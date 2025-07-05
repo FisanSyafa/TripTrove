@@ -60,6 +60,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             return true;
         }
+
+        const password = document.getElementById("password");
+
+        password.addEventListener("input", function () {
+            if (password.value.length < 8) {
+                password.setCustomValidity("Password must be at least 8 characters long.");
+            } else {
+                password.setCustomValidity("");
+            }
+        });
     </script>
 </head>
 <body style="background: url('../images/borobudur2.jpg') center center fixed no-repeat; background-size: cover;">
@@ -73,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input style="color: white" class="usrnm" type="text" placeholder="Enter Username" id="username" name="username" required>
 
             <label for="password"><b>Password</b></label>
-            <input style="color: white" class="pwd" type="password" placeholder="Enter Password" id="password" name="password" required>
+            <input style="color: white" class="pwd" type="password" placeholder="Enter Password" id="password" name="password" minlength="8" required>
 
             <label for="confirm_password"><b>Password Confirmation</b></label>
             <input style="color: white" class="pwd" type="password" placeholder="Enter Password Confirmation" id="confirm_password" name="confirm_password" required>
