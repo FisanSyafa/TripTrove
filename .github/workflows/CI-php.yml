@@ -65,9 +65,9 @@ jobs:
         fi
         
         # Jalankan test file spesifik jika ada
-        if [ -f "user_login_test.php" ]; then
-          echo "Running user_login_test.php"
-          php user_login_test.php
+        if [ -f "index.php" ]; then
+          echo "Running index.php"
+          php index.php
         else
-          echo "ℹ️ user_login_test.php not found"
+          echo "ℹ️ index.php not found"
         fi
