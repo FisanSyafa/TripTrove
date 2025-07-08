@@ -48,16 +48,26 @@ jobs:
         php -r "
           try {
             new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); 
-            echo '✅ DB Connected successfully';
+            echo 'DB Connected successfully';
           } catch (PDOException \$e) {
-            echo '❌ DB Connection failed: ' . \$e->getMessage();
+            echo 'DB Connection failed: ' . \$e->getMessage();
             exit(1);
           }
         "
-        
-        # Jalankan PHPUnit jika ada test case
+
+        # PHPUnit jika ada test case
         if [ -f "phpunit.xml" ] || [ -f "phpunit.xml.dist" ]; then
           vendor/bin/phpunit
-        elif [ -f "tests/" ]; then
+        elif [ -d "tests/" ]; then
           vendor/bin/phpunit tests/
+        fi
+        
+    - name: Test index.php via public URL
+      run: |
+        STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://tripptrove.my.id)
+        if [ "$STATUS" != "200" ]; then
+          echo "index.php not reachable (status: $STATUS)"
+          exit 1
+        else
+          echo "index.php responded with HTTP 200 OK"
         fi
