@@ -13,8 +13,8 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: triptrove_test
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -37,17 +37,17 @@ jobs:
 
     - name: Setup Database
       run: |
-        mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS triptrove_test"
+        mysql -h 127.0.0.1 -u $DB_USERNAME -p$DB_PASSWORD -e "CREATE DATABASE IF NOT EXISTS trip_triptrove"
         if [ -f "database.sql" ]; then
-          mysql -h 127.0.0.1 -u root -proot triptrove_test < database.sql
+          mysql -h 127.0.0.1 -u $DB_USERNAME -p$DB_PASSWORD trip_triptrove < database.sql
         fi
 
     - name: Run Basic Tests
       run: |
         # Tes koneksi database
-        php -r "
+        php -r " 
           try {
-            new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', 'root', 'root'); 
+            \$pdo = new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', getenv('DB_USERNAME'), getenv('DB_PASSWORD')); 
             echo '✅ DB Connected successfully';
           } catch (PDOException \$e) {
             echo '❌ DB Connection failed: ' . \$e->getMessage();
