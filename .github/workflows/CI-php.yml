@@ -60,14 +60,4 @@ jobs:
           vendor/bin/phpunit
         elif [ -f "tests/" ]; then
           vendor/bin/phpunit tests/
-        else
-          echo "ℹ️ No PHPUnit tests found"
-        fi
-        
-        # Jalankan test file spesifik jika ada
-        if [ -f "index.php" ]; then
-          echo "Running index.php"
-          php index.php
-        else
-          echo "ℹ️ index.php not found"
         fi
