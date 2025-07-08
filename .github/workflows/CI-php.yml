@@ -47,7 +47,7 @@ jobs:
         # Tes koneksi database
         php -r " 
           try {
-            \$pdo = new PDO('mysql:host=127.0.0.1;dbname=triptrove_test', getenv('DB_USERNAME'), getenv('DB_PASSWORD')); 
+            \$pdo = new PDO('mysql:host=127.0.0.1;dbname=trip_triptrove', getenv('DB_USERNAME'), getenv('DB_PASSWORD')); 
             echo '✅ DB Connected successfully';
           } catch (PDOException \$e) {
             echo '❌ DB Connection failed: ' . \$e->getMessage();
